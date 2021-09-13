@@ -15,6 +15,7 @@ app.get('/api/leaders', (req, res) => {
 });
 console.log(process.env.NODE_ENV);
 console.log('$$$$$$$$$$$$$$$$$$##########################################');
+
 if (process.env.NODE_ENV !== 'development') {
   // statically serve everything in the build folder on the route '/build'
   app.use('/build', express.static(path.join(__dirname, '../build')));
