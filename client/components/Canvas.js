@@ -1,3 +1,4 @@
+// spaghetti from https://medium.com/@pdx.lucasm/canvas-with-react-js-32e133c05258
 import React, { useRef, useEffect } from 'react'
 
 const Canvas = props => {
@@ -12,12 +13,7 @@ const Canvas = props => {
     let frameCount = 0
     let animationFrameId
     
-    const render = () => {
-      frameCount++
-      draw(context, frameCount)
-      animationFrameId = window.requestAnimationFrame(render)
-    }
-    render()
+    // this is where we invoke animation functions
     
     return () => {
       window.cancelAnimationFrame(animationFrameId)

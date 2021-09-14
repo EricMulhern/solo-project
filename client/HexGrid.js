@@ -1,9 +1,11 @@
 import { HexNode } from "./HexNode";
 
 export class HexGrid {
-  constructor(r) {
+  constructor(r, headY = 0, headX = 0) {
     this.BOARD_RADIUS = r;
+    this.HEX_RADIUS = 7; // TODO: make dynamic, inversely relative to BOARD_RADIUS (as default param). HEX_RADIUS currently not used anywhere 
     this.board = HexGrid.connectBoard(HexGrid.populateBoard(r));
+    this.head = this.board[headY][headX];
     this.lowestAdjacent = [];
   }
 
@@ -20,8 +22,8 @@ export class HexGrid {
       rowPos.length = rowLength;
       for (let j = 0; j <= rowLength; j += 2) {
         let x = j - r + offset + 2;
-        rowNeg[x] = new HexNode(x, y, r); // replace empty str with new HexNode obj
-        rowPos[x] = new HexNode(x, -y, r); // 
+        rowNeg[x] = new HexNode(x, y, r, 'mountain'); // 
+        rowPos[x] = new HexNode(x, -y, r, 'mountain'); // THIS refers to class, needs to refer to instance
       }
       hexObj[y] = rowNeg;
       if (r - i !== 0) {
@@ -53,6 +55,24 @@ export class HexGrid {
       }
     }
     return board;
+  }
+
+  resetVisited() {
+    const board = this.board;
+    // console.log('board in resetVisited is: ');
+    // console.log(board);
+    for (const rowI in board) {
+      const row = board[rowI];
+      for (const nodeI in row) {
+        let node;
+        if (nodeI !== 'length') {
+          node = row[nodeI];
+          // console.log('node is: ', node);
+          // console.log('node.visited is: ', node.visited);
+          node.visited = false;
+        }
+      }
+    }
   }
 }
             

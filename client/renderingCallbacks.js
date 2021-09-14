@@ -1,8 +1,8 @@
 const a = 2 * Math.PI / 6;
 
-import { c } from './index.js'
+import { c } from './index.js' // ###WHEN CANVAS MOVES TO COMPONENT, WILL HAVE TO IMPORT FROM CANVAS.JS
 
-export function drawHexagon(x, y, r, count, curNode) {
+export function drawHexagon(x, y, r, count, curNode, color) {
   // console.log(count)
   c.beginPath();
   for (var i = 0; i < 6; i++) {
@@ -16,14 +16,39 @@ export function drawHexagon(x, y, r, count, curNode) {
   const rand2i = Math.random() * 125;
   const rand3 = Math.random() * 255;
   const rand3i = 255 - rand3;
+
+  switch (color) {
+    case 'flat_blues': 
+      c.fillStyle = `rgba(${55}, ${105}, ${255}, ${1 - curNode.intensity/2})`; // flat blues
+      break;
+    case 'blues': 
+      c.fillStyle = `rgba(${rand1}, ${rand1+50}, ${rand1 + 200}, ${curNode.intensity})`; // blues
+      break;
+    case 'greys':
+      const blueValForGrays = curNode.intensity*100+100;
+      const greenValForGrays = blueValForGrays*0.85;
+      const redValForGrays = greenValForGrays*0.88;
+      c.fillStyle = `rgba(${redValForGrays}, ${greenValForGrays*.85}, ${blueValForGrays}, ${1})`; // greys
+      break;
+    case 'pinks': 
+      c.fillStyle = `rgba(${rand2 + 130}, ${20}, ${rand1 + 200}, ${curNode.intensity})`; // pinks
+      break;
+    case 'beehive': 
+      c.fillStyle = `rgba(${rand3 - rand1}, ${rand3 - rand1}, ${rand1}, ${curNode.intensity})`;
+      break;
+    case 'turquoise': 
+      c.fillStyle = `rgba(${rand3 * count / 10 % 105}, ${rand2 + 120}, ${255 - count * 60 % 255}, ${curNode.intensity})`; //turquoise
+      break;
+    case 'christmas':
+      c.fillStyle = `rgba(${rand3i}, ${rand3}, ${rand1}, ${.5})`;
+      break;
+    case 'lavender': 
+      c.fillStyle = `rgba(${rand1 + 120 - count*7}, ${rand1}, ${rand1 + 80 + count*7}, ${rand0})`;
+      break;
+    default :
+      c.fillStyle = `rgba(${rand3}, ${rand3}, ${rand3}, ${curNode.intensity})`;
+  }
   
-  // c.fillStyle = `rgba(${55}, ${105}, ${255}, ${curNode.intensity})`; // blues
-  c.fillStyle = `rgba(${rand1}, ${rand1+50}, ${rand1 + 200}, ${curNode.intensity})`; // blues
-  // c.fillStyle = `rgba(${rand2 + 130}, ${20}, ${rand1 + 200}, ${curNode.intensity})`; // pinks
-  // c.fillStyle = `rgba(${rand3i}, ${rand3}, ${rand1}, ${.5})`;
-  // c.fillStyle = `rgba(${rand1 + 120 - count*7}, ${rand1}, ${rand1 + 80 + count*7}, ${rand0})`;
-  // c.fillStyle = `rgba(${randR * count / 10 % 105}, ${randG + 200}, ${255 - count * 60 % 255}, ${randA})`; //turquoise
-  // c.fillStyle = `rgba(${200 + rand1}, ${rand2}, ${rand2}, ${rand0}})`; //pinks
   c.fill();
   // c.stroke();
 }
