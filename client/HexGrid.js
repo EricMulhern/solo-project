@@ -22,8 +22,8 @@ export class HexGrid {
       rowPos.length = rowLength;
       for (let j = 0; j <= rowLength; j += 2) {
         let x = j - r + offset + 2;
-        rowNeg[x] = new HexNode(x, y, r, 'mountain'); // 
-        rowPos[x] = new HexNode(x, -y, r, 'mountain'); // THIS refers to class, needs to refer to instance
+        rowNeg[x] = new HexNode(x, y, r, 'mountain'); // TODO: MOVE intensityMode TO CONSTRUCTOR, ALLOW CONFIGURATION FROM STATE
+        rowPos[x] = new HexNode(x, -y, r, 'mountain'); // 
       }
       hexObj[y] = rowNeg;
       if (r - i !== 0) {

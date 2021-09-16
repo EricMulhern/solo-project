@@ -1,6 +1,6 @@
 const a = 2 * Math.PI / 6;
 
-import { c } from './index.js' // ###WHEN CANVAS MOVES TO COMPONENT, WILL HAVE TO IMPORT FROM CANVAS.JS
+import { c } from './context.js' 
 
 export function drawHexagon(x, y, r, count, curNode, color) {
   // console.log(count)

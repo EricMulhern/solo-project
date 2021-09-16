@@ -1,10 +1,10 @@
 // import { HexGrid } from "./HexGrid";
 
-const RADIUS = 13;
+const RADIUS = 13; // TODO: MOVE TO CONSTRUCTOR, CHANGE ALL REFS TO this.RADIUS, CONFIGURE STATE TO ALLOW PASSING IN OF CUSTOM VALUE
 
 
 export class HexNode {
-  constructor(x, y, boardRadius, intensityMode) { // removed r: now getting BOARD_RADIUS from HexGrid
+  constructor(x, y, boardRadius, intensityMode) { 
     this.x = x;
     this.y = y;
     this.nw = null;
@@ -33,9 +33,9 @@ export class HexNode {
   }
 
   async multiRecurse(node, callback, ms, color, randRad = false, count = 0) {
-    console.log('randRad is: ', randRad);
+    // console.log('randRad is: ', randRad);
     const curRad = randRad ? Math.floor(Math.random()*RADIUS) * 3 : RADIUS;
-    console.log('curRad is: ', curRad);
+    // console.log('curRad is: ', curRad);
     const x = window.innerWidth/2 + Math.sqrt(3/4)*RADIUS*node.x; // change RADIUS to curRad when randRad=true to make spacing larger & more erratic
     const y = window.innerHeight/2 + node.y*(RADIUS+RADIUS/2);
     callback(x, y, curRad, count, node, color);
@@ -132,7 +132,7 @@ export class HexNode {
   // animate the board in the following pattern: eachsuccessive node is rendered one at a time, in a square adjacent to the previous. the node rendered will be the one with the lowest intensity value. if no adjacent hex exists, render the next-lowest intensity hex adjacent to any hex on the peremiter of the rendered area.  
   // * alternative: each successive node is rendered one at a time, the next node being the one whose intensity is lowest (and is adjacent to any rendered node)
   // extension: modulate ms to reflect the difference between intensity of current and subsqunt node (greater difference = lower ms delay)
-  async trickle(node, callback, ms, grid, color, randRad = false, count = 0) { //alternative
+  async trickle(node, callback, ms, grid, color, randRad = false, count = 0) { //alternative //TODO: CLEAN UP THIS DISGRACEFUL PROPERTY SIGNATURE
     const curRad = randRad ? Math.floor(Math.random()*RADIUS*3) : RADIUS;
     // wait
     await node.timeout(ms);
@@ -176,7 +176,7 @@ export class HexNode {
     if (nextNode) {
       this.trickle(nextNode, callback, ms, grid, color, randRad, count+1);
     }
-  }
+  } 
 
   async linear(hex, callback, color, randRad = false) { // is this working properly?
     const curRad = randRad ? Math.floor(Math.random()*RADIUS) * 3 : RADIUS;

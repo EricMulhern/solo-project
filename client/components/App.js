@@ -1,35 +1,36 @@
 import React, { Component } from 'react';
-
-let gameStore = [];
-
-function getInitialState() {
-  return {
-  };
-}
-
+import useCanvas from './useCanvas';
+import Canvas from './Canvas';
+import ButtonsDisplay from './ButtonsDisplay';
+import { drawHexagon } from "../renderingCallbacks";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    // this.handleClick = this.handleClick.bind(this);
-    this.state = getInitialState();
+    this.state = {
+      mode: 'multiRecurse',
+      BOARD_RADIUS: 17,
+      startCoords: '0,0',
+      callback: drawHexagon,
+      ms: 20,
+      color: 'pinks',
+      randRad: true
+    };
+    this.handleClick = this.handleClick.bind(this);
   }
   
   handleClick(row, square) {
-
     this.setState({
 
     });
   }
 
   render() {
-
     return (
       <div>
         <div id="test">THE APP IS LOADING PROPERLY</div>
-        <button id="reset" onClick={() => this.setState(/*do stuff  */)}>sprinkle mode</button>
-        <button id="reset" onClick={() => this.setState(/*do stuff  */)}>trickle mode</button>
-        <button id="reset" onClick={() => this.setState(/*do stuff  */)}>ripple mode</button>
+        <ButtonsDisplay handleClick={this.handleClick} props={this.state}/>
+        <Canvas props={this.state}></Canvas>
       </div>
     );
   }
