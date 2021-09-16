@@ -16,10 +16,11 @@ class ButtonsDisplay extends Component {
         <input value={"this is the value"} onChange={(e) => {console.log('onCHanage has fired')}}></input>
 
         <button id="reset" onClick={() => this.setState(/*do stuff  */)}>sprinkle mode</button>
+        
         <button id="reset" onClick={
           /*get options values from html input field, populate object accordingly */ 
           // instead of object literal: if (inputValFromQuerySelector) {B.R. = inp...} etc.
-          () => this.setState( 
+          () => this.props.handleClick( 
           {
             mode: 'trickle',
             BOARD_RADIUS: 17, 
@@ -30,8 +31,9 @@ class ButtonsDisplay extends Component {
             randRad: false
           }
         )}>trickle mode</button>
+
         <button id="reset" onClick={
-          () => this.setState(
+          () => this.props.handleClick(
           /*get options values from html input field, populate object accordingly */ 
           {
             mode: 'multiRecurse',
@@ -47,3 +49,5 @@ class ButtonsDisplay extends Component {
     )
   }
 }
+
+export default ButtonsDisplay;

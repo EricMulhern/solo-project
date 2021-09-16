@@ -19,9 +19,9 @@ class App extends Component {
     this.handleClick = this.handleClick.bind(this);
   }
   
-  handleClick(row, square) {
+  handleClick(newState) {
     this.setState({
-
+      ...newState
     });
   }
 
