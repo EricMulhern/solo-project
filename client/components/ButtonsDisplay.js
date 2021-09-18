@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import Button from './Button';
-// import SliderButton from './Button';
 import { drawHexagon } from "../renderingCallbacks";
-import { bool } from 'prop-types';
+import Run from './run.js';
 
 
 class ButtonsDisplay extends Component {
@@ -29,52 +28,58 @@ class ButtonsDisplay extends Component {
             }}></input>
             <label htmlFor="randRadCheck">Randomize Size</label>
           </div>
-        
         </div>
 
         {/* <input type="text" id="testInput" /> */}
         {/* <input value={"this is the value"} onChange={(e) => {console.log('onCHanage has fired')}}></input> */}
+        <div id="modes" className="arrange-horizontally">
+          {/* <label className="buttonHeader">Modes:</label> */}
 
-        <button onClick={() => this.props.handleClick( 
-          {
-            mode: 'sprinkle',
-            // BOARD_RADIUS: 17, 
-            // startCoords: '0,0',
-            callback: drawHexagon,
-            // ms: 10,
-            color: 'lavender',
-            // randRad: true
-          }
-        )}>sprinkle mode</button>
-        
-        <button onClick={
-          /*get options values from html input field, populate object accordingly */ 
-          // instead of object literal: if (inputValFromQuerySelector) {B.R. = inp...} etc.
-          () => this.props.handleClick( 
-          {
-            mode: 'trickle',
-            // BOARD_RADIUS: 17, 
-            // startCoords: '0,0',
-            callback: drawHexagon,
-            // ms: 20,
-            color: 'flat_blues',
-            randRad: false
-          }
-        )}>trickle mode</button>
+          <button onClick={() => this.props.handleClick( 
+            {
+              mode: 'sprinkle',
+              // BOARD_RADIUS: 17, 
+              // startCoords: '0,0',
+              callback: drawHexagon,
+              // ms: 10,
+              color: 'lavender',
+              // randRad: true
+            }
+          )}>Sprinkle Mode</button>
+          
+          <button onClick={
+            /*get options values from html input field, populate object accordingly */ 
+            // instead of object literal: if (inputValFromQuerySelector) {B.R. = inp...} etc.
+            () => this.props.handleClick( 
+            {
+              mode: 'trickle',
+              // BOARD_RADIUS: 17, 
+              // startCoords: '0,0',
+              callback: drawHexagon,
+              // ms: 20,
+              color: 'flat_blues',
+              randRad: false
+            }
+          )}>Trickle Mode</button>
 
-        <button onClick={
-          () => this.props.handleClick(
-          /*get options values from html input field, populate object accordingly */ 
-          {
-            mode: 'multiRecurse',
-            // BOARD_RADIUS: 17,
-            // startCoords: '0,0',
-            callback: drawHexagon,
-            // ms: 20,
-            color: 'pinks',
-            // randRad: true
-          }
-        )}>ripple mode</button> {/*RIPPLE MODE IS THE SAME AS MULTIRECURSE */}
+          <button onClick={
+            () => this.props.handleClick(
+            /*get options values from html input field, populate object accordingly */ 
+            {
+              mode: 'multiRecurse',
+              // BOARD_RADIUS: 17,
+              // startCoords: '0,0',
+              callback: drawHexagon,
+              // ms: 20,
+              color: 'pinks',
+              // randRad: true
+            }
+          )}>Ripple Mode</button> {/*RIPPLE MODE IS THE SAME AS MULTIRECURSE */}
+
+          {/*TODO: add button for linear*/}
+        </div>
+
+        <Run {...this.props}/>
       </div>
     )
   }

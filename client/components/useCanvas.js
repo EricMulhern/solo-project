@@ -5,6 +5,7 @@ import { c, canvas } from '../context.js';
 import { HexNode } from '../HexNode.js';
 import { HexGrid } from '../HexGrid.js';
 import { drawHexagon } from "../renderingCallbacks";
+import Run from './run.js';
 
 //OPTIONS: this is where I pass in info from the button about which animation to run?
 const useCanvas = (props) => {
@@ -61,6 +62,10 @@ const useCanvas = (props) => {
       case 'sprinkle': 
         hex.head.sprinkle(hex, props.callback, props.ms, props.color, props.randRad, Infinity); // TODO: make prop in state to allow custom reps option
         break;
+      case 'linear': 
+        hex.head.linear(hex, props.callback, props.ms, props.color, props.randRad); // TODO: make prop in state to allow custom reps option
+        //hex, callback, ms color, randRad = false
+        break;
     }
     //     
 
@@ -91,7 +96,7 @@ const useCanvas = (props) => {
       console.log('canvas cleared');
       c.clearRect(0, 0, canvas.width, canvas.height);
     }
-  }); // DO I NEED TO POPULATE DEPENDANCIES ARR TO HAVE THIS INVOKE EVERY TIME I CLICK?
+  }, []); // DO I NEED TO POPULATE DEPENDANCIES ARR TO HAVE THIS INVOKE EVERY TIME I CLICK?
   //[HexNode.prototype.multiRecurse, HexNode.prototype.singleRecurse, HexNode.prototype.sprinkle, HexNode.prototype.trickle, HexNode.prototype.linear]
     
   return /*canvasRef*/;

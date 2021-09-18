@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 class Button extends Component {
   constructor(props) {
     super(props);
-    this.input = React.createRef();
+    this.input = React.createRef(); // ref used instead of changing state to avoid useEffect rendering (when useEffect had no dependencies arr)
   }
 
   render() {

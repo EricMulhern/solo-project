@@ -134,7 +134,7 @@ export class HexNode {
   }
 
   async sprinkle(grid, callback, ms, color, randRad = false, reps = Infinity) { // draw *reps* number of nodes at random positions
-    for (let i = 0; i < reps; i++) {
+    for (let i = 0; i < reps; i++) { // TODO: CHANGE TO WHILE LOOP? ALLOW FOR TERMINATING CLAUSE
       await this.timeout(ms);
       const curRad = randRad ? Math.floor(Math.random()*12) * 3 : this.RADIUS;
       // const curRad = Math.floor(Math.random()*this.RADIUS);
@@ -200,7 +200,7 @@ export class HexNode {
     }
   } 
 
-  async linear(hex, callback, color, randRad = false) { // is this working properly?
+  async linear(hex, callback, ms, color, randRad = false) { // is this working properly?
     const curRad = randRad ? Math.floor(Math.random()*this.RADIUS) * 3 : this.RADIUS;
     let count = 0;
     while (count < Infinity) { // change condition to make finite?
@@ -209,7 +209,7 @@ export class HexNode {
           const curRad = Math.random() * 20 + 2;
           const curNode = hex[row][node];
           if (curNode !== length) {
-            await curNode.timeout(4);
+            await curNode.timeout(ms);
             callback(window.innerWidth/2 + Math.sqrt(3/4)*curRad*curNode.x, window.innerHeight/2 + curNode.y*(curRad+curRad/2), curRad, color, count);
             count++;
           }

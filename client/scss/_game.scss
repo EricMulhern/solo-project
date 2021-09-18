@@ -15,6 +15,9 @@ canvas {
 .arrange-vertically > * {
     display:table-row; 
 }
+.arrange-horizontally > * {
+  display:table-column; 
+}
 
 .buttonHeader {
   background: $lightGrey;
