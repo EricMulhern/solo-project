@@ -33,6 +33,7 @@ const useCanvas = (props) => {
     // invoke animation functions here
     const hex = new HexGrid(props.BOARD_RADIUS); // CHANGE 17 TO BOARD_RADIUS FROM PROPS
     console.log(hex);
+    c.clearRect(0, 0, canvas.width, canvas.height);
 
     switch (props.mode) {
       case 'multiRecurse':
@@ -42,7 +43,21 @@ const useCanvas = (props) => {
         hex.head.singleRecurse(hex.head, props.callback, props.ms, props.color, props.randRad); // make starting node prop an optional pass-in from props e.g. hex.board[-7][21] could be passed in instead of hex.head
         break;
       case 'trickle':
+        hex.head.multiRecurse(hex.head, props.callback, 10, 'greys', false); // trickle on stone, then rain
+        setTimeout(() => {
+        hex.resetVisited(false);
+        hex.head.trickle(hex.head, props.callback, 10, hex, props.color, props.randRad); // this is messy
+      // setTimeout(() => {
+      //   hex.head.sprinkle(hex, drawHexagon, 20, 'blues', true, Infinity);
+      // }, 4000);
+    }, 1500);
+
+
+
         hex.head.trickle(hex.head, props.callback, props.ms, hex, props.color, props.randRad); // make starting node prop an optional pass-in from props e.g. hex.board[-7][21] could be passed in instead of hex.head
+        break;
+      case 'sprinkle': 
+        hex.head.sprinkle(hex, props.callback, props.ms, props.color, props.randRad, Infinity); // TODO: make prop in state to allow custom reps option
         break;
     }
     //     
@@ -62,7 +77,6 @@ const useCanvas = (props) => {
     //     hex.head.trickle(hex.head, drawHexagon, 10, hex, 'flat_blues', false); // this is messy
     //   setTimeout(() => {
     //     hex.head.sprinkle(hex, drawHexagon, 20, 'blues', true, Infinity);
-    //                     //grid, callback, ms, color, randRad = false, reps
     //   }, 4000);
     // }, 3500);
 
@@ -71,6 +85,7 @@ const useCanvas = (props) => {
 
     return () => {
       // window.cancelAnimationFrame(animationFrameId)
+      hex.resetVisited(true);
       console.log('canvas cleared');
       c.clearRect(0, 0, canvas.width, canvas.height);
     }

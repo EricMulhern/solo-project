@@ -17,10 +17,24 @@ class App extends Component {
       randRad: true
     };
     this.handleClick = this.handleClick.bind(this);
+    this.inputChange = this.inputChange.bind(this);
+  }
+
+  inputChange(buttonName, value) {
+    const newButtonInfo = {};
+    // if (value === 'on') newButtonInfo[buttonName] = true;
+    // else if (value === 'off') newButtonInfo[buttonName] = false;
+    newButtonInfo[buttonName] = value;
+    
+    this.setState({
+      ...this.state,
+      ...newButtonInfo
+    });
   }
   
   handleClick(newState) {
     this.setState({
+      ...this.state,
       ...newState
     });
   }
@@ -28,8 +42,8 @@ class App extends Component {
   render() {
     return (
       <div>
-        <div id="test">THE APP IS LOADING PROPERLY</div>
-        <ButtonsDisplay handleClick={this.handleClick} props={this.state}/>
+        {/* <div id="test">THE APP IS LOADING PROPERLY</div> */}
+        <ButtonsDisplay handleClick={this.handleClick} inputChange={this.inputChange} props={this.state}/>
         <Canvas props={this.state}></Canvas>
       </div>
     );

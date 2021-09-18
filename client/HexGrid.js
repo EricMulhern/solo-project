@@ -57,7 +57,7 @@ export class HexGrid {
     return board;
   }
 
-  resetVisited() {
+  resetVisited(booleanVal = false) {
     const board = this.board;
     // console.log('board in resetVisited is: ');
     // console.log(board);
@@ -69,7 +69,7 @@ export class HexGrid {
           node = row[nodeI];
           // console.log('node is: ', node);
           // console.log('node.visited is: ', node.visited);
-          node.visited = false;
+          node.visited = booleanVal;
         }
       }
     }

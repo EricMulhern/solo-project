@@ -2,7 +2,7 @@ const a = 2 * Math.PI / 6;
 
 import { c } from './context.js' 
 
-export function drawHexagon(x, y, r, count, curNode, color) {
+export function drawHexagon(x, y, r, count, curNode, color, rotation='horizontal') { //TODO: IMPLEMENT OPTIONS FOR ROTATING BOARD &/ INDIVIDUAL NODES
   // console.log(count)
   c.beginPath();
   for (var i = 0; i < 6; i++) {

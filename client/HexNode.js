@@ -1,4 +1,5 @@
 // import { HexGrid } from "./HexGrid";
+import { canvas } from './context.js';
 
 const RADIUS = 13; // TODO: MOVE TO CONSTRUCTOR, CHANGE ALL REFS TO this.RADIUS, CONFIGURE STATE TO ALLOW PASSING IN OF CUSTOM VALUE
 
@@ -14,6 +15,7 @@ export class HexNode {
     this.sw = null;
     this.se = null;
     this.visited = false;
+    this.RADIUS = Math.min(canvas.height, canvas.width) / (boardRadius + 2);
 
     switch (intensityMode) {
       // case 'random': 
