@@ -24,6 +24,9 @@ export function drawHexagon(x, y, r, count, curNode, color, rotation='horizontal
     case 'blues': 
       c.fillStyle = `rgba(${rand1}, ${rand1+50}, ${rand1 + 200}, ${curNode.intensity})`; // blues
       break;
+    case 'reds': 
+      c.fillStyle = `rgba(${rand1+180}, ${rand1}, ${rand1}, ${curNode.intensity})`; // blues
+      break;
     case 'greys':
       const blueValForGrays = curNode.intensity*100+100;
       const greenValForGrays = blueValForGrays*0.85;

@@ -1,7 +1,7 @@
 // import { HexGrid } from "./HexGrid";
 import { canvas } from './context.js';
 
-const RADIUS = 13; // TODO: MOVE TO CONSTRUCTOR, CHANGE ALL REFS TO this.RADIUS, CONFIGURE STATE TO ALLOW PASSING IN OF CUSTOM VALUE
+// const RADIUS = 13; // TODO: MOVE TO CONSTRUCTOR, CHANGE ALL REFS TO this.RADIUS, CONFIGURE STATE TO ALLOW PASSING IN OF CUSTOM VALUE
 
 
 export class HexNode {
@@ -15,7 +15,7 @@ export class HexNode {
     this.sw = null;
     this.se = null;
     this.visited = false;
-    this.RADIUS = Math.min(canvas.height, canvas.width) / (boardRadius + 2);
+    this.RADIUS = Math.min(canvas.height, canvas.width) / (boardRadius*4);
 
     switch (intensityMode) {
       // case 'random': 
@@ -25,6 +25,26 @@ export class HexNode {
         this.intensity = 1 - Math.random()*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
         // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
         break;
+      case 'crater':
+        this.intensity = Math.random()*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+        // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+        break;
+        case 'smooth_mountain':
+          this.intensity = 1 - (Math.random()/2 + .5)*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+          // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+          break;
+          case 'smooth_crater':
+            this.intensity = (Math.random()/2 + .5)*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+            // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+            break;
+        case 'pyramid':
+          this.intensity = 1 - (Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+          // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+          break;
+        case 'anti_pyramid':
+          this.intensity = (Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+          // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+          break;
       default: // default is just random
         this.intensity = Math.random();
       }
@@ -36,10 +56,10 @@ export class HexNode {
 
   async multiRecurse(node, callback, ms, color, randRad = false, count = 0) {
     // console.log('randRad is: ', randRad);
-    const curRad = randRad ? Math.floor(Math.random()*RADIUS) * 3 : RADIUS;
+    const curRad = randRad ? Math.floor(Math.random()*this.RADIUS) * 3 : this.RADIUS;
     // console.log('curRad is: ', curRad);
-    const x = window.innerWidth/2 + Math.sqrt(3/4)*RADIUS*node.x; // change RADIUS to curRad when randRad=true to make spacing larger & more erratic
-    const y = window.innerHeight/2 + node.y*(RADIUS+RADIUS/2);
+    const x = window.innerWidth/2 + Math.sqrt(3/4)*this.RADIUS*node.x; // change this.RADIUS to curRad when randRad=true to make spacing larger & more erratic
+    const y = window.innerHeight/2 + node.y*(this.RADIUS+this.RADIUS/2);
     callback(x, y, curRad, count, node, color);
     // if node is present at directional prop, invoke recurse passing in that node
     if (node['nw'] && !node['nw'].visited) {
@@ -75,9 +95,9 @@ export class HexNode {
   }
 
   async singleRecurse(node, callback, ms, color, randRad = false, count = 0) {
-    const curRad = randRad ? Math.random() * 14 + 2 : RADIUS;
-    const x = window.innerWidth/2 + Math.sqrt(3/4)*RADIUS*node.x;// change RADIUS to curRad when randRad=true to make spacing larger & more erratic
-    const y = window.innerHeight/2 + node.y*(RADIUS+RADIUS/2);
+    const curRad = randRad ? Math.random() * 14 + 2 : this.RADIUS;
+    const x = window.innerWidth/2 + Math.sqrt(3/4)*this.RADIUS*node.x;// change this.RADIUS to curRad when randRad=true to make spacing larger & more erratic
+    const y = window.innerHeight/2 + node.y*(this.RADIUS+this.RADIUS/2);
     // node.visited = true;
     callback(x, y, curRad, count, node, color);
     // if node is present at directional prop, invoke recurse passing in that node
@@ -116,8 +136,8 @@ export class HexNode {
   async sprinkle(grid, callback, ms, color, randRad = false, reps = Infinity) { // draw *reps* number of nodes at random positions
     for (let i = 0; i < reps; i++) {
       await this.timeout(ms);
-      const curRad = randRad ? Math.floor(Math.random()*12) * 3 : RADIUS;
-      // const curRad = Math.floor(Math.random()*RADIUS);
+      const curRad = randRad ? Math.floor(Math.random()*12) * 3 : this.RADIUS;
+      // const curRad = Math.floor(Math.random()*this.RADIUS);
       let y = Math.floor(Math.random() * (grid.BOARD_RADIUS * 2 - 1) -  grid.BOARD_RADIUS + 1); //y coordinate at which to select node
       let x = Math.floor(Math.random() * grid.board[y].length - (grid.board[y].length-1)/2); //x coordinate at which to select node
       if (Math.abs(y % 2) !== Math.abs(x % 2)) { // make sure that if one is even, the other is too & vv
@@ -135,12 +155,12 @@ export class HexNode {
   // * alternative: each successive node is rendered one at a time, the next node being the one whose intensity is lowest (and is adjacent to any rendered node)
   // extension: modulate ms to reflect the difference between intensity of current and subsqunt node (greater difference = lower ms delay)
   async trickle(node, callback, ms, grid, color, randRad = false, count = 0) { //alternative //TODO: CLEAN UP THIS DISGRACEFUL PROPERTY SIGNATURE
-    const curRad = randRad ? Math.floor(Math.random()*RADIUS*3) : RADIUS;
+    const curRad = randRad ? Math.floor(Math.random()*this.RADIUS*3) : this.RADIUS;
     // wait
     await node.timeout(ms);
     // determine position of current node
-    const x = window.innerWidth/2 + Math.sqrt(3/4)*RADIUS*node.x; // change RADIUS to curRad when randRad=true to make spacing larger & more erratic
-    const y = window.innerHeight/2 + node.y*(RADIUS+RADIUS/2);
+    const x = window.innerWidth/2 + Math.sqrt(3/4)*this.RADIUS*node.x; // change this.RADIUS to curRad when randRad=true to make spacing larger & more erratic
+    const y = window.innerHeight/2 + node.y*(this.RADIUS+this.RADIUS/2);
     
     node.visited = true;
     // invoke callback on popped el    
@@ -167,7 +187,7 @@ export class HexNode {
       grid.lowestAdjacent.push(node['se']);
     }
     // sort lowestAdjacent from highest to lowest
-    grid.lowestAdjacent.sort((a, b) => a.intensity - b.intensity);
+    grid.lowestAdjacent.sort((a, b) => b.intensity - a.intensity);
     // pop last element off array & run callback on it
     let nextNode = grid.lowestAdjacent.pop();
     while (nextNode && nextNode.visited) {
@@ -181,7 +201,7 @@ export class HexNode {
   } 
 
   async linear(hex, callback, color, randRad = false) { // is this working properly?
-    const curRad = randRad ? Math.floor(Math.random()*RADIUS) * 3 : RADIUS;
+    const curRad = randRad ? Math.floor(Math.random()*this.RADIUS) * 3 : this.RADIUS;
     let count = 0;
     while (count < Infinity) { // change condition to make finite?
       for (let row in hex) {

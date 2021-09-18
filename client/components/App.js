@@ -14,7 +14,8 @@ class App extends Component {
       callback: drawHexagon,
       ms: 20,
       color: 'pinks',
-      randRad: true
+      randRad: true,
+      intensityMode: 'smooth_mountain'
     };
     this.handleClick = this.handleClick.bind(this);
     this.inputChange = this.inputChange.bind(this);

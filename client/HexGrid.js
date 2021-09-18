@@ -1,15 +1,16 @@
 import { HexNode } from "./HexNode";
 
 export class HexGrid {
-  constructor(r, headY = 0, headX = 0) {
+  constructor(r, intensityMode, headY = 0, headX = 0) {
     this.BOARD_RADIUS = r;
     this.HEX_RADIUS = 7; // TODO: make dynamic, inversely relative to BOARD_RADIUS (as default param). HEX_RADIUS currently not used anywhere 
-    this.board = HexGrid.connectBoard(HexGrid.populateBoard(r));
+    this.board = HexGrid.connectBoard(HexGrid.populateBoard(r, intensityMode));
     this.head = this.board[headY][headX];
     this.lowestAdjacent = [];
+    // this.tally = 0;
   }
 
-  static populateBoard(r) {
+  static populateBoard(r, intensityMode) {
     const hexObj = {};
     let offset = 0;
     for (let i = 1; i <= r; i++) { 
@@ -22,12 +23,14 @@ export class HexGrid {
       rowPos.length = rowLength;
       for (let j = 0; j <= rowLength; j += 2) {
         let x = j - r + offset + 2;
-        rowNeg[x] = new HexNode(x, y, r, 'mountain'); // TODO: MOVE intensityMode TO CONSTRUCTOR, ALLOW CONFIGURATION FROM STATE
-        rowPos[x] = new HexNode(x, -y, r, 'mountain'); // 
+        rowNeg[x] = new HexNode(x, y, r, intensityMode); // TODO: MOVE intensityMode TO CONSTRUCTOR, ALLOW CONFIGURATION FROM STATE
+        rowPos[x] = new HexNode(x, -y, r, intensityMode); // 
+        // this.tally += 2;
       }
       hexObj[y] = rowNeg;
       if (r - i !== 0) {
         hexObj[-y] = rowPos;
+        // this.tally -= rowNeg.length;
       }
     }
     return hexObj;

@@ -31,7 +31,7 @@ const useCanvas = (props) => {
     // let animationFrameId;
 
     // invoke animation functions here
-    const hex = new HexGrid(props.BOARD_RADIUS); // CHANGE 17 TO BOARD_RADIUS FROM PROPS
+    const hex = new HexGrid(props.BOARD_RADIUS, props.intensityMode); // CHANGE 17 TO BOARD_RADIUS FROM PROPS
     console.log(hex);
     c.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -43,15 +43,17 @@ const useCanvas = (props) => {
         hex.head.singleRecurse(hex.head, props.callback, props.ms, props.color, props.randRad); // make starting node prop an optional pass-in from props e.g. hex.board[-7][21] could be passed in instead of hex.head
         break;
       case 'trickle':
-        hex.head.multiRecurse(hex.head, props.callback, 10, 'greys', false); // trickle on stone, then rain
+        hex.head.multiRecurse(hex.head, props.callback, 4, 'greys', false); // trickle on stone, then rain
         setTimeout(() => {
-        hex.resetVisited(false);
-        hex.head.trickle(hex.head, props.callback, 10, hex, props.color, props.randRad); // this is messy
+          hex.resetVisited(false);
+          hex.head.trickle(hex.head, props.callback, props.ms, hex, props.color, props.randRad); // this is messy
       // setTimeout(() => {
       //   hex.head.sprinkle(hex, drawHexagon, 20, 'blues', true, Infinity);
       // }, 4000);
-    }, 1500);
-
+          console.log((3*Math.sqrt(3)/2)*hex.BOARD_RADIUS*hex.BOARD_RADIUS+1);
+        }, Math.floor((3*Math.sqrt(3)/2)*hex.BOARD_RADIUS*hex.BOARD_RADIUS+1));
+    // console.log('hex.tally: ', hex.tally);
+      // props.ms*(3*Math.sqrt(3)/2)*props.BOARD_RADIUS*props.BOARD_RADIUS+1
 
 
         hex.head.trickle(hex.head, props.callback, props.ms, hex, props.color, props.randRad); // make starting node prop an optional pass-in from props e.g. hex.board[-7][21] could be passed in instead of hex.head
