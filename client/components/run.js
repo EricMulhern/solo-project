@@ -11,7 +11,7 @@ class Run extends Component {
   }
 
   render() {
-    const props = this.props.props;
+    const props = this.props.props; //kludgy
     console.log('props is : ', props);
     return (
       <button onClick={ () => {
@@ -44,12 +44,15 @@ class Run extends Component {
             hex.head.trickle(hex.head, props.callback, props.ms, hex, props.color, props.randRad); // make starting node prop an optional pass-in from props e.g. hex.board[-7][21] could be passed in instead of hex.head
             break;
           case 'sprinkle': 
-            hex.head.sprinkle(hex, props.callback, props.ms, props.color, props.randRad, Infinity); // TODO: make prop in state to allow custom reps option
+            hex.head.sprinkle(hex, props.callback, props.ms, props.color, props.randRad); 
             break;
           case 'linear': 
             hex.head.linear(hex, props.callback, props.ms, props.color, props.randRad); // TODO: make prop in state to allow custom reps option
             //hex, callback, ms color, randRad = false
             break;
+          case 'paintbrush':
+            hex.head.paintbrush(hex, props.callback, props.ms, props.color, props.randRad, 0.1); 
+            break; //grid, callback, ms, color, randRad = false, brushSize = 1
         }
     //     
 

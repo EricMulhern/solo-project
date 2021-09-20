@@ -19,6 +19,9 @@ class App extends Component {
     };
     this.handleClick = this.handleClick.bind(this);
     this.inputChange = this.inputChange.bind(this);
+    this.getMousePos = this.getMousePos.bind(this);
+    // document.onmousemove = this.handleMouseMove; // is this really the best place for this?
+    document.addEventListener("click", this.getMousePos);
   }
 
   inputChange(buttonName, value) {
@@ -40,11 +43,26 @@ class App extends Component {
     });
   }
 
+  getMousePos(event)  { //spaghetti https://stackoverflow.com/questions/7790725/javascript-track-mouse-position
+    // var eventDoc, doc, body;
+    event = event || window.event; // IE-ism
+    const newMouseInfo = {
+      mouseX: event.screenX,
+      mouseY: event.screenY,
+    };
+
+    console.log(event);
+    this.setState({
+      ...this.state,
+      ...newMouseInfo
+    })
+  }
+
   render() {
     return (
       <div>
         {/* <div id="test">THE APP IS LOADING PROPERLY</div> */}
-        <ButtonsDisplay handleClick={this.handleClick} inputChange={this.inputChange} props={this.state}/>
+        <ButtonsDisplay handleClick={this.handleClick} inputChange={this.inputChange} getMousePos={this.getMousePos} props={this.state}/>
         <Canvas props={this.state}></Canvas>
       </div>
     );

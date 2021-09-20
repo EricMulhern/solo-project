@@ -133,8 +133,12 @@ export class HexNode {
     }
   }
 
-  async sprinkle(grid, callback, ms, color, randRad = false, reps = Infinity) { // draw *reps* number of nodes at random positions
-    for (let i = 0; i < reps; i++) { // TODO: CHANGE TO WHILE LOOP? ALLOW FOR TERMINATING CLAUSE
+  async sprinkle(grid, callback, ms, color, randRad = false, mouseX = 0, mouseY = 0, brushSize = 1) { // draw *reps* number of nodes at random positions
+    let on = true;
+    console.log('in sprinkle in HexNode, window.event is:', window.event);
+    while (on) { // TODO: CHANGE TO WHILE LOOP? ALLOW FOR TERMINATING CLAUSE
+      mouseX = window.event.screenX;
+      mouseY = window.event.screenY;
       await this.timeout(ms);
       const curRad = randRad ? Math.floor(Math.random()*12) * 3 : this.RADIUS;
       // const curRad = Math.floor(Math.random()*this.RADIUS);
@@ -144,11 +148,40 @@ export class HexNode {
         x > 0 ? x-- : x++;
       }
       const curNode = grid.board[y][x];
-      curNode.visited = true;
-      callback(curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2, 
-               curNode.y * (curRad+curRad/2) + window.innerHeight/2, 
-               curRad, i, curNode, color);
+      // curNode.visited = true;
+      // if node.visited === true, that means resetVisited(true) has been invoked.
+      curNode.visited === false ? 
+        callback((curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2)*brushSize + mouseX, 
+               (curNode.y * (curRad+curRad/2) + window.innerHeight/2)*brushSize + mouseY, 
+               curRad*brushSize, 0, curNode, color) //FIX count
+               //x, y, r, count, curNode, color, rotation='horizontal'
+        : on = false;
     }
+  }
+
+  async paintbrush(grid, callback, ms, color, randRad = false, brushSize = 1) { // draw *reps* number of nodes at random positions
+    let on = true;
+    console.log('in sprinkle in HexNode, window.event is:', window.event);
+    const mouseX = window.event.screenX;
+    const mouseY = window.event.screenY;
+      await this.timeout(ms);
+      const curRad = randRad ? Math.floor(Math.random()*12) * 3 : this.RADIUS;
+      let y = Math.floor(Math.random() * (grid.BOARD_RADIUS * 2 - 1) -  grid.BOARD_RADIUS + 1); //y coordinate at which to select node
+      let x = Math.floor(Math.random() * grid.board[y].length - (grid.board[y].length-1)/2); //x coordinate at which to select node
+      if (Math.abs(y % 2) !== Math.abs(x % 2)) { // make sure that if one is even, the other is too & vv
+        x > 0 ? x-- : x++;
+      }
+      const curNode = grid.board[y][x];
+      // curNode.visited = true;
+      // if node.visited === true, that means resetVisited(true) has been invoked.
+      curNode.visited === false ? 
+        callback((curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2)*brushSize + mouseX, 
+               (curNode.y * (curRad+curRad/2) + window.innerHeight/2)*brushSize + mouseY, 
+               curRad*brushSize, 0, curNode, color) //FIX count
+               //x, y, r, count, curNode, color, rotation='horizontal'
+        : on = false;
+
+      this.paintbrush(grid, callback, ms, color, randRad = false, brushSize)
   }
 
   // animate the board in the following pattern: eachsuccessive node is rendered one at a time, in a square adjacent to the previous. the node rendered will be the one with the lowest intensity value. if no adjacent hex exists, render the next-lowest intensity hex adjacent to any hex on the peremiter of the rendered area.  

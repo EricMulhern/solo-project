@@ -76,7 +76,23 @@ class ButtonsDisplay extends Component {
             }
           )}>Ripple Mode</button> {/*RIPPLE MODE IS THE SAME AS MULTIRECURSE */}
 
+          <button onClick={() => this.props.handleClick( 
+            {
+              mode: 'paintbrush',
+              // BOARD_RADIUS: 17, 
+              // startCoords: '0,0',
+              callback: drawHexagon,
+              // ms: 10,
+              color: 'reds',
+              // randRad: true
+            }
+          )}>Paintbrush Mode</button>
+
+
+
           {/*TODO: add button for linear*/}
+
+
         </div>
 
         <Run {...this.props}/>
