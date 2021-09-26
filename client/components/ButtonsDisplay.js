@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Button from './Button';
 import { drawHexagon } from "../renderingCallbacks";
 import Run from './run.js';
-
+import Dropdown from 'react-dropdown';
+// import 'react-dropdown/style.css';
 
 class ButtonsDisplay extends Component {
   constructor(props) {
@@ -13,13 +14,17 @@ class ButtonsDisplay extends Component {
 
   render() {
     return (
-      <div style={{position: 'relative', top: '140px', left: '10px', zIndex: 9999}}>
+      <div style={{position: 'relative', top: '230px', left: '10px', zIndex: 9999}}>
         <div id="controls" className="arrange-vertically">
           {/* <h3 className="buttonHeader">Controls:</h3> */}
           <Button type="range" buttonName={'Set Board Radius'} buttonProp={'BOARD_RADIUS'} min="1" max="99" inputChange={this.props.inputChange}/>
           <Button type="range" buttonName={'Set Speed'} buttonProp={'ms'} min="1" max="800" inputChange={this.props.inputChange}/>
           <Button type="text" buttonName={'Set Color'} buttonProp={'color'} inputChange={this.props.inputChange}/>
+          <h4 style={{color: 'rgb(186,186,186)'}}>color options: reds, pinks, blues, flat_blues,</h4>
+          <h4 style={{color: 'rgb(186,186,186)'}}>greys, turquoise, lavender, beehive, christmas</h4>
           <Button type="text" buttonName={'Set Terrain'} buttonProp={'intensityMode'} inputChange={this.props.inputChange}/>
+          <h4 style={{color: 'rgb(186,186,186)'}}>terrain options: mountain, smooth_mountain, crater,</h4>
+          <h4 style={{color: 'rgb(186,186,186)'}}>smooth_crater, pyramid, anti_pyramid, random</h4>
           <div className="checkbox">
             <input type="checkbox" id="randRadCheck" ref={this.checkboxInput} onChange={() => {
               // const boolVal = this.checkboxInput.current.value === 'on';
@@ -42,7 +47,7 @@ class ButtonsDisplay extends Component {
               // startCoords: '0,0',
               callback: drawHexagon,
               // ms: 10,
-              color: 'lavender',
+              color: 'beehive',
               // randRad: true
             }
           )}>Sprinkle Mode</button>
@@ -76,7 +81,7 @@ class ButtonsDisplay extends Component {
             }
           )}>Ripple Mode</button> {/*RIPPLE MODE IS THE SAME AS MULTIRECURSE */}
 
-          <button onClick={() => this.props.handleClick( 
+          {/* <button onClick={() => this.props.handleClick( 
             {
               mode: 'paintbrush',
               // BOARD_RADIUS: 17, 
@@ -86,8 +91,18 @@ class ButtonsDisplay extends Component {
               color: 'reds',
               // randRad: true
             }
-          )}>Paintbrush Mode</button>
+          )}>Paintbrush Mode</button> */}
+          {/* <Dropdown>
+            <Dropdown.Toggle variant="success" id="dropdown-basic">
+              Dropdown Button
+            </Dropdown.Toggle>
 
+            <Dropdown.Menu>
+              <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown> */}
 
 
           {/*TODO: add button for linear*/}

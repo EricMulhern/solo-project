@@ -4,6 +4,12 @@ import { c } from './context.js'
 
 export function drawHexagon(x, y, r, count, curNode, color, rotation='horizontal') { //TODO: IMPLEMENT OPTIONS FOR ROTATING BOARD &/ INDIVIDUAL NODES
   // console.log(count)
+  // console.log('in drawHexagon, window.event is:', window.event); // undefined
+  // let mouseX = window.event.screenX;
+  // let mouseY = window.event.screenY;
+  // x += mouseX;
+  // y += mouseY;
+
   c.beginPath();
   for (var i = 0; i < 6; i++) {
     c.lineTo(x + r * Math.sin(a * i), y + r * Math.cos(a * i)); // to rotate nodes: swap sin & cos. 

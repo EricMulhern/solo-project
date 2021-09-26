@@ -133,12 +133,9 @@ export class HexNode {
     }
   }
 
-  async sprinkle(grid, callback, ms, color, randRad = false, mouseX = 0, mouseY = 0, brushSize = 1) { // draw *reps* number of nodes at random positions
+  async sprinkle(grid, callback, ms, color, randRad = false, brushSize = 1) { // draw *reps* number of nodes at random positions
     let on = true;
-    console.log('in sprinkle in HexNode, window.event is:', window.event);
     while (on) { // TODO: CHANGE TO WHILE LOOP? ALLOW FOR TERMINATING CLAUSE
-      mouseX = window.event.screenX;
-      mouseY = window.event.screenY;
       await this.timeout(ms);
       const curRad = randRad ? Math.floor(Math.random()*12) * 3 : this.RADIUS;
       // const curRad = Math.floor(Math.random()*this.RADIUS);
@@ -151,8 +148,8 @@ export class HexNode {
       // curNode.visited = true;
       // if node.visited === true, that means resetVisited(true) has been invoked.
       curNode.visited === false ? 
-        callback((curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2)*brushSize + mouseX, 
-               (curNode.y * (curRad+curRad/2) + window.innerHeight/2)*brushSize + mouseY, 
+        callback((curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2)*brushSize, 
+               (curNode.y * (curRad+curRad/2) + window.innerHeight/2)*brushSize, 
                curRad*brushSize, 0, curNode, color) //FIX count
                //x, y, r, count, curNode, color, rotation='horizontal'
         : on = false;
@@ -161,9 +158,6 @@ export class HexNode {
 
   async paintbrush(grid, callback, ms, color, randRad = false, brushSize = 1) { // draw *reps* number of nodes at random positions
     let on = true;
-    console.log('in sprinkle in HexNode, window.event is:', window.event);
-    const mouseX = window.event.screenX;
-    const mouseY = window.event.screenY;
       await this.timeout(ms);
       const curRad = randRad ? Math.floor(Math.random()*12) * 3 : this.RADIUS;
       let y = Math.floor(Math.random() * (grid.BOARD_RADIUS * 2 - 1) -  grid.BOARD_RADIUS + 1); //y coordinate at which to select node
@@ -175,8 +169,8 @@ export class HexNode {
       // curNode.visited = true;
       // if node.visited === true, that means resetVisited(true) has been invoked.
       curNode.visited === false ? 
-        callback((curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2)*brushSize + mouseX, 
-               (curNode.y * (curRad+curRad/2) + window.innerHeight/2)*brushSize + mouseY, 
+        callback((curNode.x * Math.sqrt(3/4)*curRad + window.innerWidth/2)*brushSize, 
+               (curNode.y * (curRad+curRad/2) + window.innerHeight/2)*brushSize, 
                curRad*brushSize, 0, curNode, color) //FIX count
                //x, y, r, count, curNode, color, rotation='horizontal'
         : on = false;
