@@ -70,7 +70,7 @@ circles
       const nextCircle = d3.select(`#r${node.y}c${node.x}`)
       nextCircle
         .transition()
-        .duration(ms)
+        .duration(ms*3)
         .style('fill', (d, i) => `rgb(${colorWheel.r}, ${colorWheel.g}, ${colorWheel.b})`)
 
     }, 100)
