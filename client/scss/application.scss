@@ -1,2 +1,14 @@
-@import '_variables';
-@import '_game';
+
+$lightOrange: #FFCA08;
+$darkOrange: #F57921;
+$lightBlue: #ACCEEC;
+$darkBlue: #398BD4;
+$lightGrey: #FCFCFC;
+$darkLavender: #360e98;
+$seaCyan: #159ed0;
+$darkSeaCyan: #084961;
+
+body {
+  background: $darkLavender;
+}
+
