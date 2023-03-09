@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { HexGrid } from './HexGrid.js';
+import { ColorWheel } from './ColorWheel.js';
 
 import styles from './scss/application.scss';
 
@@ -7,7 +8,7 @@ const a = Math.PI / 3;
 
 const state = {
   mode: 'multiRecurse',
-  BOARD_RADIUS: 25,
+  BOARD_RADIUS: 15,
   CIRCLE_RADIUS: 10,
   startCoords: '0,0',
   callback: () => {},
@@ -18,6 +19,7 @@ const state = {
 };
 
 const hex = new HexGrid(state.BOARD_RADIUS, state.intensityMode);
+const colorWheel = new ColorWheel()
 
 console.log(hex)
 
@@ -57,12 +59,19 @@ circles
       .attr('r', () => (state.CIRCLE_RADIUS + 2) * 1.3)
       .style('fill', () => `rgb(${255}, ${0}, ${255})`)
 
+    hex.board.forEach(row => {
+      row.forEach(node => node.visited = false)
+    });
+
+    colorWheel.incrementColor();
+    
     d.d3MultiRecurse(d, (node, ms, count) => {
+      colorWheel.incrementColor();
       const nextCircle = d3.select(`#r${node.y}c${node.x}`)
       nextCircle
         .transition()
         .duration(ms)
-        .style('fill', (d, i) => `rgb(${255}, ${253}, ${254})`)
+        .style('fill', (d, i) => `rgb(${colorWheel.r}, ${colorWheel.g}, ${colorWheel.b})`)
 
     }, 100)
   })
@@ -102,27 +111,27 @@ circles
 
 
 
-let tally = 1;
+// let tally = 1;
 
-function fold() {
-  circles
-    .transition()
-    .duration(3000)
-    .delay(3000)
-    .attr("cy", (d, i) => 100 + d.y * yStretch + i*65)
-    .attr("cx", (d, i) => 100 + d.x*xStretch + i*tally++)
-    .style('fill', (d, i) => `rgb(${i*13}, ${73}, ${97})`)
-    // .style('fill', (d, i) => `rgb(${8}, ${73}, ${97})`)
+// function fold() {
+//   circles
+//     .transition()
+//     .duration(3000)
+//     .delay(3000)
+//     .attr("cy", (d, i) => 100 + d.y * yStretch + i*65)
+//     .attr("cx", (d, i) => 100 + d.x*xStretch + i*tally++)
+//     .style('fill', (d, i) => `rgb(${i*13}, ${73}, ${97})`)
+//     // .style('fill', (d, i) => `rgb(${8}, ${73}, ${97})`)
 
-}
+// }
 
-function unfold() {
-  circles
-    .transition()
-    .duration(3000)
-    .attr("cy", (d, i) => 100 + d.y * yStretch + i*5)
-    .style('fill', (d, i) => `rgb(${21}, ${158}, ${208})`)
-}
+// function unfold() {
+//   circles
+//     .transition()
+//     .duration(3000)
+//     .attr("cy", (d, i) => 100 + d.y * yStretch + i*5)
+//     .style('fill', (d, i) => `rgb(${21}, ${158}, ${208})`)
+// }
 
 // fold();
 // setInterval(() => {unfold()}, 6000)
