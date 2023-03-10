@@ -7,4 +7,5 @@ paintbrush mode currently broken.
 TO START: 
 - clone the repo
 - navigate to the directory of the repo in your terminal
-- type 'npm run dev'
+- npm i
+- npm run dev
