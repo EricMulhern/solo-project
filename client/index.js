@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .duration(600)
           .attr('r', () => xStretch)        
           .style('fill', (d) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`)
-      }).bind(this), 5000)
+      }).bind(this), 30000)
     })
   
   // svg.on('mousemove', (e) => {
