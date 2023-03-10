@@ -8,8 +8,8 @@ const a = Math.PI / 3;
 
 const state = {
   mode: 'multiRecurse',
-  BOARD_RADIUS: 15,
-  CIRCLE_RADIUS: 10,
+  BOARD_RADIUS: 45,
+  CIRCLE_RADIUS: 5,
   startCoords: '0,0',
   callback: () => {},
   ms: 20,
