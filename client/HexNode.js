@@ -1,8 +1,3 @@
-// import { HexGrid } from "./HexGrid";
-import { canvas } from './context.js';
-
-// const RADIUS = 13; // TODO: MOVE TO CONSTRUCTOR, CHANGE ALL REFS TO this.RADIUS, CONFIGURE STATE TO ALLOW PASSING IN OF CUSTOM VALUE
-
 
 export class HexNode {
   constructor(x, y, boardRadius, intensityMode) { 
@@ -15,7 +10,7 @@ export class HexNode {
     this.sw = null;
     this.se = null;
     this.visited = false;
-    this.RADIUS = Math.min(canvas.height, canvas.width) / (boardRadius*4);
+    this.RADIUS = Math.min(800, 1000) / (boardRadius*4);
 
     switch (intensityMode) {
       // case 'random': 
@@ -29,22 +24,26 @@ export class HexNode {
         this.intensity = Math.random()*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
         // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
         break;
-        case 'smooth_mountain':
-          this.intensity = 1 - (Math.random()/2 + .5)*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
-          // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
-          break;
-          case 'smooth_crater':
-            this.intensity = (Math.random()/2 + .5)*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
-            // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
-            break;
-        case 'pyramid':
-          this.intensity = 1 - (Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
-          // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
-          break;
-        case 'anti_pyramid':
-          this.intensity = (Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
-          // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
-          break;
+      case 'smooth_mountain':
+        this.intensity = 1 - (Math.random()/2 + .5)*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+        // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+        break;
+      case 'smooth_mountain_for_array':
+        this.intensity = 1 - (Math.random()/2 + .5)*(Math.abs((this.x - boardRadius*1.5)/boardRadius*2)/2 + Math.abs((this.y - boardRadius)/boardRadius*2)/2)/2;
+        // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+        break;
+      case 'smooth_crater':
+        this.intensity = (Math.random()/2 + .5)*(Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+        // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+        break;
+      case 'pyramid':
+        this.intensity = 1 - (Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+        // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+        break;
+      case 'anti_pyramid':
+        this.intensity = (Math.abs(this.x/boardRadius*2)/2 + Math.abs(this.y/boardRadius*2)/2)/2;
+        // this.intensity = 1 - (Math.random()*(this.x + boardRadius*2)/(boardRadius*4)/2 + Math.random()*(this.y + boardRadius)/(boardRadius*2)/2);
+        break;
       default: // default is just random
         this.intensity = Math.random();
       }
@@ -54,10 +53,44 @@ export class HexNode {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  async d3MultiRecurse(node, callback, ms, count = 0) {
+    callback(node, ms, count);
+    node.visited = true;
+    // if node is present at directional prop, invoke recurse passing in that node
+    if (node['nw'] && !node['nw'].visited) {
+      node['nw'].visited = true;
+      await node.timeout(ms);
+      this.d3MultiRecurse(node['nw'], callback, ms, count+1);
+    } 
+    if (node['ne'] && !node['ne'].visited) {
+      node['ne'].visited = true;
+      await node.timeout(ms);
+      this.d3MultiRecurse(node['ne'], callback, ms, count+1);
+    } 
+    if (node['w'] && !node['w'].visited) {
+      node['w'].visited = true;
+      await node.timeout(ms);
+      this.d3MultiRecurse(node['w'], callback, ms, count+1);
+    }  
+    if (node['e'] && !node['e'].visited) {
+      node['e'].visited = true;
+      await node.timeout(ms);
+      this.d3MultiRecurse(node['e'], callback, ms, count+1);
+    }  
+    if (node['sw'] && !node['sw'].visited) {
+      node['sw'].visited = true;
+      await node.timeout(ms);
+      this.d3MultiRecurse(node['sw'], callback, ms, count+1);
+    }  
+    if (node['se'] && !node['se'].visited) {
+      node['se'].visited = true;
+      await node.timeout(ms);
+      this.d3MultiRecurse(node['se'], callback, ms, count+1);
+    }
+  }
+
   async multiRecurse(node, callback, ms, color, randRad = false, count = 0) {
-    // console.log('randRad is: ', randRad);
     const curRad = randRad ? Math.floor(Math.random()*this.RADIUS) * 3 : this.RADIUS;
-    // console.log('curRad is: ', curRad);
     const x = window.innerWidth/2 + Math.sqrt(3/4)*this.RADIUS*node.x; // change this.RADIUS to curRad when randRad=true to make spacing larger & more erratic
     const y = window.innerHeight/2 + node.y*(this.RADIUS+this.RADIUS/2);
     callback(x, y, curRad, count, node, color);
