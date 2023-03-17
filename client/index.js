@@ -11,18 +11,19 @@ const a = Math.PI / 3;
   
 const state = {
   mode: 'multiRecurse',
-  BOARD_RADIUS: 45,
-  CIRCLE_RADIUS: 5,
+  BOARD_RADIUS: 25,
+  CIRCLE_RADIUS: 7,
   startCoords: '0,0',
   callback: () => {},
   ms: 20,
   color: 'pinks',
   randRad: true,
-  intensityMode: 'smooth_mountain_for_array'
+  intensityMode: 'smooth_mountain_for_array',
+  increment: 1
 };
 
-const yStretch = state.CIRCLE_RADIUS*5/6;
-const xStretch = state.CIRCLE_RADIUS;
+const yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
+const xStretch = state.CIRCLE_RADIUS * 0.92;
 
 const reverb = new Reverb({decay: 10}).toDestination();
 const envelope = new AmplitudeEnvelope({
@@ -66,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   circles
     .style('fill', (d, i) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`)
-    .style('stroke', () => 'rgb(60,40,100)')
+    // .style('stroke', () => 'rgb(60,40,100)')
     .on('mouseover', (e, d) => {
       const circle = d3.select(e.target);
       circle
@@ -79,10 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
         row.forEach(node => node.visited = false)
       });
   
-      colorWheel.incrementColor();
+      colorWheel.incrementColor(state.increment);
       
       d.d3MultiRecurse(d, (node, ms, count) => {
-        colorWheel.incrementColor();
+        colorWheel.incrementColor(state.increment);
         const nextCircle = d3.select(`#r${node.y}c${node.x}`)
         nextCircle
           .transition()
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 100);
   
       envelope.triggerAttackRelease("0.5");
-      d.synth.triggerAttackRelease(60 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0);
+      d.synth.triggerAttackRelease(200 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0);
     })
     .on('mouseout', (e) => {
       const circle = d3.select(e.target)
@@ -125,8 +126,30 @@ document.addEventListener('DOMContentLoaded', () => {
           .duration(600)
           .attr('r', () => xStretch)        
           .style('fill', (d) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`)
-      }).bind(this), 5000)
+      }).bind(this), 30000)
     })
+
+  const defs = svg.append("defs");
+  //Initialize the filter
+  defs
+    .append("filter")
+    .attr("id", "motionFilter") //Give it a unique ID
+      //Increase the width of the filter region to remove blur "boundary"
+    .attr("width", "300%")
+    .attr("height", "300%")
+    //Put center of the "width" back in the middle of the element
+    .attr("x", "-100%")
+    .attr("y", "-100%")
+    .append("feGaussianBlur") //Append a filter technique
+    .attr("class", "blurValues") //Needed to select later on
+    .attr("in", "SourceGraphic") //Apply blur on the applied element
+    //Do a blur of 8 standard deviations in the horizontal
+    //direction and 0 in vertical
+    .attr("stdDeviation", "9");
+
+  //Apply the filter to an element
+  svg
+    .style("filter", "url(#motionFilter)");
   
   // svg.on('mousemove', (e) => {
   //   console.log(e)
