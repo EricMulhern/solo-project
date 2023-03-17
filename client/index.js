@@ -4,7 +4,8 @@ import { HexGrid } from './HexGrid.js';
 import { ColorWheel } from './ColorWheel.js';
 import { init } from './init.js'
 
-import * as d3 from 'd3';
+// import * as d3 from 'd3';
+import {select} from 'd3';
 import { Reverb, AmplitudeEnvelope, Synth } from "tone";
   
 const a = Math.PI / 3;
@@ -43,7 +44,7 @@ const colorWheel = new ColorWheel();
 document.addEventListener('DOMContentLoaded', () => {
   init();
   
-  const svg = d3.select('#root')
+  const svg = select('#root')
     .append('svg')
     .attr('width', window.innerWidth)
     .attr('height', window.innerHeight);
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .style('fill', (d, i) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`)
     // .style('stroke', () => 'rgb(60,40,100)')
     .on('mouseover', (e, d) => {
-      const circle = d3.select(e.target);
+      const circle = select(e.target);
       circle
         .transition()
         .duration(30)
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       d.d3MultiRecurse(d, (node, ms, count) => {
         colorWheel.incrementColor(state.increment);
-        const nextCircle = d3.select(`#r${node.y}c${node.x}`)
+        const nextCircle = select(`#r${node.y}c${node.x}`)
         nextCircle
           .transition()
           .duration(ms*3)
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       d.synth.triggerAttackRelease(200 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0);
     })
     .on('mouseout', (e) => {
-      const circle = d3.select(e.target)
+      const circle = select(e.target)
       circle
         .transition()
         .duration(200)
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .style('fill', (d, i) => `rgb(${131}, ${0}, ${161})`)
     })
     .on('click', (e, d) => {
-      const circle = d3.select(e.target)
+      const circle = select(e.target)
       circle
         .transition()
         .duration(130)
