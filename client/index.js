@@ -15,6 +15,7 @@ const state = {
   rippleDuration: 100,
   colorIncrement: 1,
   blur: 5,
+  lastTouchedNode: null
 };
 // used to space the nodes appropriately
 state.yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
@@ -79,9 +80,9 @@ function renderBoard() {
     .attr('id', (d) => `r${d.y}c${d.x}`)
     .style('fill', (d, i) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`);
 
-  function startRipple(e, d) {
+  function startRipple(element, d) {
     // change the radius and color when mousing over a node
-    const circle = select(e.target);
+    const circle = select(element);
     circle
       .transition()
       .duration(30)
@@ -113,8 +114,9 @@ function renderBoard() {
     synth.triggerAttackRelease(200 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
   }
 
-  function stopRipple(e) {
-    const circle = select(e.target);
+  function stopRipple(element) {
+    // shrink exited circle and make it go dark
+    const circle = select(element);
     circle
       .transition()
       .duration(200)
@@ -124,34 +126,31 @@ function renderBoard() {
 
   circles
     .on('mouseover', (e, d) => { // mouse over in browser
-      startRipple(e, d);
+      startRipple(e.target, d);
     })
     .on('touchstart', (e, d) => { // tap on touchscreen
       e.preventDefault();
-      startRipple(e, d);
+      startRipple(e.target, d);
     })
-    .on('pointerenter', (e, d) => { // tap on touchscreen
+    .on('touchmove', (e, d) => { // tap on touchscreen
       e.preventDefault();
-      startRipple(e, d);
-    })
-    .on('pointermove', (e, d) => { // tap on touchscreen
-      e.preventDefault();
-      startRipple(e, d);
+
+      // Get the x and y coordinates of the touch
+      const x = e.touches[0].clientX;
+      const y = e.touches[0].clientY;
+
+      // Get the element that is currently underneath the touch point
+      const targetElement = document.elementFromPoint(x, y);
+
+      // make sure not to re-trigger ripple while touch point is moving across the current node
+      if (targetElement !== state.lastTouchedNode) {
+        stopRipple(state.lastTouchedNode);
+        state.lastTouchedNode = targetElement;
+        startRipple(targetElement, d);
+      }
     })
     .on('mouseout', (e) => { // mouse out in browser
-      stopRipple(e);
-    })
-    .on('touchend', (e) => { // element no longer touched on touchscreen
-      e.preventDefault();
-      stopRipple(e);
-    })
-    .on('touchcancel', (e) => { // element no longer touched on touchscreen
-      e.preventDefault();
-      stopRipple(e);
-    })
-    .on('pointerleave', (e) => { // element no longer touched on touchscreen
-      e.preventDefault();
-      stopRipple(e);
+      stopRipple(e.target);
     })
     .on('click', (e) => {
       // make the clicked circle big and white, then go dark
