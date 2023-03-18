@@ -127,18 +127,18 @@ function renderBoard() {
       startRipple(e, d);
     })
     .on('touchstart', (e, d) => { // tap on touchscreen
-      startRipple(e, d);
-    })
-    .on('touchmove', (e, d) => { // move depressed finger on touchscreen
+      e.preventDefault();
       startRipple(e, d);
     })
     .on('mouseout', (e) => { // mouse out in browser
       stopRipple(e);
     })
     .on('touchend', (e) => { // element no longer touched on touchscreen
+      e.preventDefault();
       stopRipple(e);
     })
     .on('touchcancel', (e) => { // element no longer touched on touchscreen
+      e.preventDefault();
       stopRipple(e);
     })
     .on('click', (e) => {
