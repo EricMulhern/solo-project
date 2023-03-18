@@ -243,10 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBoard();
   });
   document.querySelector('#ripple-size').addEventListener('change', (e) => {
-    state.colorIncrement = 5 - e.target.value;
+    state.colorIncrement = 5.1 - e.target.value;
   });
   document.querySelector('#ripple-speed').addEventListener('change', (e) => {
-    state.rippleDuration = 1000 - e.target.value;
+    state.rippleDuration = 1001 - e.target.value;
   });
   document.querySelector('#blur').addEventListener('change', (e) => {
     state.blur = +e.target.value;
