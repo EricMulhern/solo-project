@@ -12,7 +12,7 @@ const state = {
   BOARD_RADIUS: 25,
   CIRCLE_RADIUS: 7,
   intensityMode: 'smooth_mountain_for_array', // determines pattern for first render
-  rippleDuration: 100,
+  rippleDuration: 10,
   colorIncrement: 1,
   blur: 0,
   lastTouchedNode: null,
