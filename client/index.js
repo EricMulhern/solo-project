@@ -14,7 +14,7 @@ const state = {
   intensityMode: 'smooth_mountain_for_array', // determines pattern for first render
   rippleDuration: 100,
   colorIncrement: 1,
-  blur: 5,
+  blur: 0,
   lastTouchedNode: null,
   envelope: null,
   synth: null,
