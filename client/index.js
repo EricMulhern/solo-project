@@ -144,7 +144,7 @@ function renderBoard() {
 
       // make sure not to re-trigger ripple while touch point is moving across the current node
       if (targetElement !== state.lastTouchedNode) {
-        stopRipple(state.lastTouchedNode);
+        if (state.lastTouchedNode) stopRipple(state.lastTouchedNode);
         state.lastTouchedNode = targetElement;
         startRipple(targetElement, d);
       }
