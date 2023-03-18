@@ -74,6 +74,7 @@ function renderBoard() {
     .data((d) => d.filter(el => el))
     .enter()
     .append('circle')
+    .classed('circle', true)
     .attr("cx", (d) => d.x * state.xStretch)
     .attr("cy", (d, i) => d.y * state.yStretch + i * state.CIRCLE_RADIUS / 6)
     .attr("r", (d) => state.CIRCLE_RADIUS + state.CIRCLE_RADIUS / 15)
@@ -98,8 +99,16 @@ function renderBoard() {
     // move the color of the next node one step around the color wheel
     colorWheel.incrementColor(state.colorIncrement);
 
+    // grab the node from the HexGrid corresponding to the most recently touched node. 
+    // this is necessary for touch events because d is always bound to the node the touch initiated at.
+    const [x, y] = element.id.split('c').map(str => {
+      if (str[0] === 'r') return str.slice(1);
+      else return str;
+    })
+    const currentlyTouchedNode = state.hex.board[x][y];
+    
     // from the current node, recursively traverse all neighboring nodes and invoke a callback for each
-    d.d3MultiRecurse(d, (node, ms, _count) => {
+    d.d3MultiRecurse(currentlyTouchedNode, (node, ms, _count) => {
       // move the color of the next node one step around the color wheel
       colorWheel.incrementColor(state.colorIncrement);
       const nextCircle = select(`#r${node.y}c${node.x}`)
@@ -111,7 +120,7 @@ function renderBoard() {
     
     // play synth note within envelope, with slight latency to improve performance
     envelope.triggerAttackRelease("0.5", '+0.03');
-    synth.triggerAttackRelease(200 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
+    synth.triggerAttackRelease(200 + Math.abs((1 + currentlyTouchedNode.x - state.BOARD_RADIUS)*(1 + currentlyTouchedNode.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
   }
 
   function stopRipple(element) {
@@ -143,7 +152,7 @@ function renderBoard() {
       const targetElement = document.elementFromPoint(x, y);
 
       // make sure not to re-trigger ripple while touch point is moving across the current node
-      if (targetElement !== state.lastTouchedNode) {
+      if (targetElement !== state.lastTouchedNode && targetElement.className.baseVal === 'circle') {
         if (state.lastTouchedNode) stopRipple(state.lastTouchedNode);
         state.lastTouchedNode = targetElement;
         startRipple(targetElement, d);
