@@ -35,7 +35,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-items: center;
   text-align: center;
   background-color: rgba(163,33,33);
   font-size: 2rem;
 }
+
+#modal-header {
+  color: white;
+}
+
+#modal-subtitle {
+  color: white;
+}
+
+#controls {
+  position: fixed;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.control-label {
+  color: $lightGrey;
+}
+

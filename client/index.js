@@ -2,194 +2,224 @@ import styles from './scss/application.scss';
 
 import { HexGrid } from './HexGrid.js';
 import { ColorWheel } from './ColorWheel.js';
-import { init } from './init.js'
 
-// import * as d3 from 'd3';
-import {select} from 'd3';
-import { Reverb, AmplitudeEnvelope, Synth } from "tone";
+import { select } from 'd3';
+import { Reverb, AmplitudeEnvelope, PolySynth } from "tone";
   
 const a = Math.PI / 3;
   
 const state = {
-  mode: 'multiRecurse',
   BOARD_RADIUS: 25,
   CIRCLE_RADIUS: 7,
-  startCoords: '0,0',
-  callback: () => {},
-  ms: 20,
-  color: 'pinks',
-  randRad: true,
-  intensityMode: 'smooth_mountain_for_array',
-  increment: 1
+  intensityMode: 'smooth_mountain_for_array', // determines pattern for first render
+  rippleDuration: 100,
+  colorIncrement: 1,
+  blur: 5,
 };
+// used to space the nodes appropriately
+state.yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
+state.xStretch = state.CIRCLE_RADIUS * 0.92;
 
-const yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
-const xStretch = state.CIRCLE_RADIUS * 0.92;
+// used to generate new colors
+const colorWheel = new ColorWheel();
 
-const reverb = new Reverb({decay: 10}).toDestination();
+// effects to enhance the sound of the synth
+const reverb = new Reverb({ decay: 10 }).toDestination();
 const envelope = new AmplitudeEnvelope({
     attack: 0.25,
     decay: 0,
     sustain: 0.25,
     release: 0.25
 }).connect(reverb);
+// synth capable of playing multiple notes at once
+const synth = new PolySynth({ volume: -30, maxPolyphony: 32 }).connect(envelope);
 
-const hex = new HexGrid(state.BOARD_RADIUS, state.intensityMode);
-hex.board.forEach(row => {
-  row.forEach(node => node.synth = new Synth({volume: -30}).connect(envelope));
-});
-
-const colorWheel = new ColorWheel();
-
-document.addEventListener('DOMContentLoaded', () => {
-  init();
+// re-calculates the correct size and spacing for nodes, and
+// re-generates the underlying hex board object
+function generateBoard() {
+  state.hex?.board.forEach(row => {
+    row.forEach(node => node.visited = true)
+  });
+  state.CIRCLE_RADIUS = Math.min(window.innerWidth, window.innerHeight) / state.BOARD_RADIUS * 0.24;
+  state.yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
+  state.xStretch = state.CIRCLE_RADIUS * 0.92;
   
+  state.hex = new HexGrid(state.BOARD_RADIUS, state.intensityMode);
+}
+
+// defines the d3 code to draw the board
+function renderBoard() {
+  // if previous board is rendered, remove it
+  select('#board').remove();
+
+  // generate new board
   const svg = select('#root')
     .append('svg')
+    .attr('id', 'board')
     .attr('width', window.innerWidth)
     .attr('height', window.innerHeight);
-  
+
+  // create groups which will each contain a row of nodes
   const rows = svg.selectAll('g')
-    .data(hex.board)
+    .data(state.hex.board)
     .enter()
     .append('g')
-    .attr('transform', (_d, i) => `translate(${window.innerWidth/2 - xStretch*state.BOARD_RADIUS*2},${window.innerHeight/2 - yStretch*state.BOARD_RADIUS*2 + a*yStretch*i})`)
-    .attr('id', (_d, i) => `r${i}`)
+    .attr('transform', (_d, i) => `translate(${window.innerWidth / 2 - state.xStretch * state.BOARD_RADIUS * 2 + 2 / state.BOARD_RADIUS * state.xStretch},${window.innerHeight / 2 - state.yStretch * state.BOARD_RADIUS * 2 + 2 / state.BOARD_RADIUS * state.yStretch + a * state.yStretch * i})`)
+    .attr('id', (_d, i) => `r${i}`);
   
+  // create nodes for each row, and position based on its position in the HexGrid
   const circles = rows
     .selectAll('circle')
     .data((d) => d.filter(el => el))
     .enter()
     .append('circle')
-    .attr("cx", (d) => d.x*xStretch)
-    .attr("cy", (d, i) => d.y * yStretch + i*state.CIRCLE_RADIUS/6)
-    .attr("r", (d) => state.CIRCLE_RADIUS + state.CIRCLE_RADIUS/15)
+    .attr("cx", (d) => d.x * state.xStretch)
+    .attr("cy", (d, i) => d.y * state.yStretch + i * state.CIRCLE_RADIUS / 6)
+    .attr("r", (d) => state.CIRCLE_RADIUS + state.CIRCLE_RADIUS / 15)
     .attr('id', (d) => `r${d.y}c${d.x}`)
-  
+    .style('fill', (d, i) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`);
+
+  function startRipple(e, d) {
+    // change the radius and color when mousing over a node
+    const circle = select(e.target);
+    circle
+      .transition()
+      .duration(30)
+      .attr('r', () => (state.CIRCLE_RADIUS + 2) * 1.3)
+      .style('fill', () => `rgb(${255}, ${0}, ${255})`);
+
+    // mark all nodes as not visited, making it possible to trigger a new ripple and
+    // causing any existing ripples to propagate out in all directions from their current position
+    state.hex.board.forEach(row => {
+      row.forEach(node => node.visited = false);
+    });
+
+    // move the color of the next node one step around the color wheel
+    colorWheel.incrementColor(state.colorIncrement);
+
+    // from the current node, recursively traverse all neighboring nodes and invoke a callback for each
+    d.d3MultiRecurse(d, (node, ms, _count) => {
+      // move the color of the next node one step around the color wheel
+      colorWheel.incrementColor(state.colorIncrement);
+      const nextCircle = select(`#r${node.y}c${node.x}`)
+      nextCircle
+        .transition()
+        .duration(ms * 3) // shift color slower than the ripple propagates for smoother effect
+        .style('fill', () => `rgb(${colorWheel.r}, ${colorWheel.g}, ${colorWheel.b})`)
+    }, state.rippleDuration);
+    
+    // play synth note within envelope, with slight latency to improve performance
+    envelope.triggerAttackRelease("0.5", '+0.03');
+    synth.triggerAttackRelease(200 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
+  }
+
+  function stopRipple(e) {
+    const circle = select(e.target);
+    circle
+      .transition()
+      .duration(200)
+      .attr('r', () => state.xStretch + 2)
+      .style('fill', () => `rgb(${131}, ${0}, ${161})`);
+  }
+
   circles
-    .style('fill', (d, i) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`)
-    // .style('stroke', () => 'rgb(60,40,100)')
-    .on('mouseover', (e, d) => {
-      const circle = select(e.target);
-      circle
-        .transition()
-        .duration(30)
-        .attr('r', () => (state.CIRCLE_RADIUS + 2) * 1.3)
-        .style('fill', () => `rgb(${255}, ${0}, ${255})`)
-  
-      hex.board.forEach(row => {
-        row.forEach(node => node.visited = false)
-      });
-  
-      colorWheel.incrementColor(state.increment);
-      
-      d.d3MultiRecurse(d, (node, ms, count) => {
-        colorWheel.incrementColor(state.increment);
-        const nextCircle = select(`#r${node.y}c${node.x}`)
-        nextCircle
-          .transition()
-          .duration(ms*3)
-          .style('fill', (d, i) => `rgb(${colorWheel.r}, ${colorWheel.g}, ${colorWheel.b})`)
-      }, 100);
-  
-      envelope.triggerAttackRelease("0.5");
-      d.synth.triggerAttackRelease(200 + Math.abs((1 + d.x - state.BOARD_RADIUS)*(1 + d.y - state.BOARD_RADIUS))*2, 1.0);
+    .on('mouseover', (e, d) => { // mouse over in browser
+      startRipple(e, d);
     })
-    .on('mouseout', (e) => {
+    .on('touchstart', (e, d) => { // tap on touchscreen
+      startRipple(e, d);
+    })
+    .on('touchmove', (e, d) => { // move depressed finger on touchscreen
+      startRipple(e, d);
+    })
+    .on('mouseout', (e) => { // mouse out in browser
+      stopRipple(e);
+    })
+    .on('touchend', (e) => { // element no longer touched on touchscreen
+      stopRipple(e);
+    })
+    .on('touchcancel', (e) => { // element no longer touched on touchscreen
+      stopRipple(e);
+    })
+    .on('click', (e) => {
+      // make the clicked circle big and white, then go dark
       const circle = select(e.target)
       circle
-        .transition()
-        .duration(200)
-        .attr('r', (d, i) => xStretch + 2)
-        .style('fill', (d, i) => `rgb(${131}, ${0}, ${161})`)
-    })
-    .on('click', (e, d) => {
-      const circle = select(e.target)
-      circle
+        .attr('r', () => state.xStretch * 2.5)
         .transition()
         .duration(130)
-        .style('fill', (d, i) => `rgb(${255}, ${253}, ${254})`)
-      circle
+        .style('fill', () => `rgb(${255}, ${253}, ${254})`)
         .transition()
         .duration(600)
         .delay(200)
-        .style('fill', (d, i) => `rgb(${40}, ${76}, ${153})`)
-  
-      d.synth.volume.value = -5;
-      d.synth.triggerAttackRelease(600, 1.0);
+        .style('fill', () => `rgb(${40}, ${76}, ${153})`)
+      
+      // play note @ 600Hz loudly. for the next 2sec, all sounds will play loud
+      synth.volume.value = -10;
+      synth.triggerAttackRelease(600, 1.0, '+0.03');
+      // after 2sec, make quiet again and animate circle
       setTimeout((() => {
-        d.synth.volume.value = -30;
-        d.synth.triggerAttackRelease(900, 1.0);
+        synth.volume.value = -30;
+        synth.triggerAttackRelease(900, 1.0, '+0.03');
         circle
-          .attr('r', () => xStretch * 2.5)
+          .attr('r', () => state.xStretch * 2.5)
           .style('fill', () => `rgb(255, 253, 254)`)
           .transition()
           .duration(600)
-          .attr('r', () => xStretch)        
+          .attr('r', () => state.xStretch)        
           .style('fill', (d) => `rgb(${(51 * d.intensity)}, ${153 * d.intensity}, ${255})`)
-      }).bind(this), 30000)
-    })
+      }).bind(this), 2000);
+    });
 
-  const defs = svg.append("defs");
-  //Initialize the filter
-  defs
-    .append("filter")
-    .attr("id", "motionFilter") //Give it a unique ID
-      //Increase the width of the filter region to remove blur "boundary"
-    .attr("width", "300%")
-    .attr("height", "300%")
-    //Put center of the "width" back in the middle of the element
-    .attr("x", "-100%")
-    .attr("y", "-100%")
-    .append("feGaussianBlur") //Append a filter technique
-    .attr("class", "blurValues") //Needed to select later on
-    .attr("in", "SourceGraphic") //Apply blur on the applied element
-    //Do a blur of 8 standard deviations in the horizontal
-    //direction and 0 in vertical
-    .attr("stdDeviation", "9");
+    // initialize the filter for blur
+    const defs = svg.append("defs");
+    defs
+      .append("filter")
+      .attr("id", "motionFilter") // give it a unique ID
+      // increase the width of the filter region to remove blur "boundary"
+      .attr("width", "300%")
+      .attr("height", "300%")
+      // put center of the "width" back in the middle of the element
+      .attr("x", "-100%")
+      .attr("y", "-100%")
+      .append("feGaussianBlur") // append a filter technique
+      .attr("class", "blurValues") // needed to select later on
+      .attr("in", "SourceGraphic") // apply blur on the applied element
+      // do a blur of x standard deviations direction
+      .attr("stdDeviation", state.blur);
+    
+    //Apply the filter to the board
+    svg.style("filter", "url(#motionFilter)");
+}
+  
+// trigger code to calculate node size and spacing
+generateBoard();
 
-  //Apply the filter to an element
-  svg
-    .style("filter", "url(#motionFilter)");
-  
-  // svg.on('mousemove', (e) => {
-  //   console.log(e)
-  //   circles.transition()
-  //     .duration(30)
-  //     .attr("cy", (d, i) => d.y * yStretch * i * (e.pageY/1000))
-  //     .attr("cx", (d, i) => d.x * xStretch * i * (e.pageX/1000))
-  //     .style('fill', (d, i) => `rgb(${i*13}, ${73}, ${97})`)
-  
-  //   rows.transition()
-  //     .duration(30)
-  //     .attr('transform', (_d, i) => `translate(${400},${350 + a*yStretch*i*e.pageY/1000})`)
-  // });
-  
-  
-  
-  // let tally = 1;
-  
-  // function fold() {
-  //   circles
-  //     .transition()
-  //     .duration(3000)
-  //     .delay(3000)
-  //     .attr("cy", (d, i) => 100 + d.y * yStretch + i*65)
-  //     .attr("cx", (d, i) => 100 + d.x*xStretch + i*tally++)
-  //     .style('fill', (d, i) => `rgb(${i*13}, ${73}, ${97})`)
-  //     // .style('fill', (d, i) => `rgb(${8}, ${73}, ${97})`)
-  
-  // }
-  
-  // function unfold() {
-  //   circles
-  //     .transition()
-  //     .duration(3000)
-  //     .attr("cy", (d, i) => 100 + d.y * yStretch + i*5)
-  //     .style('fill', (d, i) => `rgb(${21}, ${158}, ${208})`)
-  // }
-  
-  // fold();
-  // setInterval(() => {unfold()}, 6000)
-  // setInterval(() => {fold()}, 6000)
+document.addEventListener('DOMContentLoaded', () => {
+  // add event listener to make modal & overlay disappear when clicked
+  const overlay = document.getElementById('overlay');
+  overlay.addEventListener('click', () => {
+    overlay.style.display = "none";
+  });
+
+  // add event listeners to update visuals based on input controls
+  document.querySelector('#board-radius').addEventListener('change', (e) => {
+    state.BOARD_RADIUS = +e.target.value;
+    generateBoard();
+    renderBoard();
+  });
+  document.querySelector('#ripple-size').addEventListener('change', (e) => {
+    state.colorIncrement = 5 - e.target.value;
+  });
+  document.querySelector('#ripple-speed').addEventListener('change', (e) => {
+    state.rippleDuration = 1000 - e.target.value;
+  });
+  document.querySelector('#blur').addEventListener('change', (e) => {
+    state.blur = +e.target.value;
+    select('.blurValues')
+      .attr("stdDeviation", state.blur);
+  });
+
+  // triggers the d3 code to draw the board
+  renderBoard();
 });
