@@ -15,7 +15,9 @@ const state = {
   rippleDuration: 100,
   colorIncrement: 1,
   blur: 5,
-  lastTouchedNode: null
+  lastTouchedNode: null,
+  envelope: null,
+  synth: null,
 };
 // used to space the nodes appropriately
 state.yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
@@ -24,16 +26,16 @@ state.xStretch = state.CIRCLE_RADIUS * 0.92;
 // used to generate new colors
 const colorWheel = new ColorWheel();
 
-// effects to enhance the sound of the synth
-const reverb = new Reverb({ decay: 10 }).toDestination();
-const envelope = new AmplitudeEnvelope({
-    attack: 0.25,
-    decay: 0,
-    sustain: 0.25,
-    release: 0.25
-}).connect(reverb);
-// synth capable of playing multiple notes at once
-const synth = new PolySynth({ volume: -30, maxPolyphony: 32 }).connect(envelope);
+// // effects to enhance the sound of the synth
+// const reverb = new Reverb({ decay: 10 }).toDestination();
+// const envelope = new AmplitudeEnvelope({
+//     attack: 0.25,
+//     decay: 0,
+//     sustain: 0.25,
+//     release: 0.25
+// }).connect(reverb);
+// // synth capable of playing multiple notes at once
+// const synth = new PolySynth({ volume: -30, maxPolyphony: 32 }).connect(envelope);
 
 // re-calculates the correct size and spacing for nodes, and
 // re-generates the underlying hex board object
@@ -119,8 +121,8 @@ function renderBoard() {
     }, state.rippleDuration);
     
     // play synth note within envelope, with slight latency to improve performance
-    envelope.triggerAttackRelease("0.5", '+0.03');
-    synth.triggerAttackRelease(200 + Math.abs((1 + currentlyTouchedNode.x - state.BOARD_RADIUS)*(1 + currentlyTouchedNode.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
+    state.envelope.triggerAttackRelease("0.5", '+0.03');
+    state.synth.triggerAttackRelease(200 + Math.abs((1 + currentlyTouchedNode.x - state.BOARD_RADIUS)*(1 + currentlyTouchedNode.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
   }
 
   function stopRipple(element) {
@@ -175,12 +177,12 @@ function renderBoard() {
         .style('fill', () => `rgb(${40}, ${76}, ${153})`)
       
       // play note @ 600Hz loudly. for the next 2sec, all sounds will play loud
-      synth.volume.value = -10;
-      synth.triggerAttackRelease(600, 1.0, '+0.03');
+      state.synth.volume.value = -10;
+      state.synth.triggerAttackRelease(600, 1.0, '+0.03');
       // after 2sec, make quiet again and animate circle
       setTimeout((() => {
-        synth.volume.value = -30;
-        synth.triggerAttackRelease(900, 1.0, '+0.03');
+        state.synth.volume.value = -30;
+        state.synth.triggerAttackRelease(900, 1.0, '+0.03');
         circle
           .attr('r', () => state.xStretch * 2.5)
           .style('fill', () => `rgb(255, 253, 254)`)
@@ -220,6 +222,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('overlay');
   overlay.addEventListener('click', () => {
     overlay.style.display = "none";
+
+    // effects to enhance the sound of the synth
+    state.reverb = new Reverb({ decay: 10 }).toDestination();
+    state.envelope = new AmplitudeEnvelope({
+        attack: 0.25,
+        decay: 0,
+        sustain: 0.25,
+        release: 0.25
+    }).connect(state.reverb);
+    // synth capable of playing multiple notes at once
+    state.synth = new PolySynth({ volume: -30, maxPolyphony: 32 }).connect(state.envelope);
+
   });
 
   // add event listeners to update visuals based on input controls
