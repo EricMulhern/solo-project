@@ -60,3 +60,19 @@ body {
   color: $lightGrey;
 }
 
+#mute-input-wrapper {
+  width: 129px;
+  margin-right: 2px;
+  margin-left: 2px;
+  padding-right: 2px;
+  padding-left: 2px;
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+}
+
+#mute-control-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: right;
+}

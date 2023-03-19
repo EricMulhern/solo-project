@@ -18,6 +18,7 @@ const state = {
   lastTouchedNode: null,
   envelope: null,
   synth: null,
+  mute: false
 };
 // used to space the nodes appropriately
 state.yStretch = state.CIRCLE_RADIUS * 5/6 * 0.92;
@@ -121,8 +122,10 @@ function renderBoard() {
     }, state.rippleDuration);
     
     // play synth note within envelope, with slight latency to improve performance
-    state.envelope.triggerAttackRelease("0.5", '+0.03');
-    state.synth.triggerAttackRelease(200 + Math.abs((1 + currentlyTouchedNode.x - state.BOARD_RADIUS)*(1 + currentlyTouchedNode.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
+    if (!state.mute) {
+      state.envelope.triggerAttackRelease("0.5", '+0.03');
+      state.synth.triggerAttackRelease(200 + Math.abs((1 + currentlyTouchedNode.x - state.BOARD_RADIUS)*(1 + currentlyTouchedNode.y - state.BOARD_RADIUS))*2, 1.0, '+0.03');
+    }
   }
 
   function stopRipple(element) {
@@ -176,13 +179,17 @@ function renderBoard() {
         .delay(200)
         .style('fill', () => `rgb(${40}, ${76}, ${153})`)
       
-      // play note @ 600Hz loudly. for the next 2sec, all sounds will play loud
-      state.synth.volume.value = -10;
-      state.synth.triggerAttackRelease(600, 1.0, '+0.03');
+      if (!state.mute) {
+        // play note @ 600Hz loudly. for the next 2sec, all sounds will play loud
+        state.synth.volume.value = -10;
+        state.synth.triggerAttackRelease(600, 1.0, '+0.03');
+      }
       // after 2sec, make quiet again and animate circle
       setTimeout((() => {
-        state.synth.volume.value = -30;
-        state.synth.triggerAttackRelease(900, 1.0, '+0.03');
+        if (!state.mute) {
+          state.synth.volume.value = -30;
+          state.synth.triggerAttackRelease(900, 1.0, '+0.03');
+        }
         circle
           .attr('r', () => state.xStretch * 2.5)
           .style('fill', () => `rgb(255, 253, 254)`)
@@ -252,6 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
     state.blur = +e.target.value;
     select('.blurValues')
       .attr("stdDeviation", state.blur);
+  });
+  document.querySelector('#mute').addEventListener('change', () => {
+    state.mute = !state.mute;
   });
 
   // triggers the d3 code to draw the board
